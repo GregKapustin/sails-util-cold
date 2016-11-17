@@ -1,11 +1,56 @@
 {
-  "name": "sails-utils-cold",
+  "name": "sails-util-cold",
   "version": "0.0.1",
-  "description": "",
+  "description": "Create a cold copy of models, for data consistency. Quite like event sourcing.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GregKapustin/sails-util-cold"
+  },
+  "keywords": [
+    "sails hook loader",
+    "sails plugins system",
+    "plugins",
+    "sails",
+    "sails-hook",
+    "hook",
+    "cold",
+    "mvc",
+    "hook-models",
+    "hook-controllers",
+    "hook-services",
+    "hook-config",
+    "hook-policies",
+    "models",
+    "controllers",
+    "services",
+    "config",
+    "policies",
+    "cold content",
+    "event sourcing"
+  ],
+  "author": "Gregory Kapustin",
+  "contributors": [
+    {
+      "name": "Gregory Kapustin",
+      "email": "gregory@kapustin.fr"
+    },
+    {
+      "name": "Julien Fischer"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GregKapustin/sails-util-cold/issues"
+  },
+  "homepage": "https://github.com/GregKapustin/sails-util-cold",
+  "dependencies": {
+    "include-all": "^0.1.6",
+    "lodash": "^3.5.0",
+    "sails-build-dictionary": "^0.10.1",
+    "sails-util": "^0.10.6"
+  }
 }

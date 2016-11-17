@@ -1,4 +1,5 @@
 var buildDictionary = require('sails-build-dictionary');
+var _ = require('lodash');
 
 module.exports = function sailsUtilsCold(sails) {
 
@@ -8,10 +9,10 @@ module.exports = function sailsUtilsCold(sails) {
     
 
     var Loader = {
-        cold: function(obj) {
+        cold: function(dir) {
             var self = this;
             buildDictionary.optional({
-                dirname: obj.models,
+                dirname: dir,
                 filter: /^([^.]+)\.(js|coffee|litcoffee)$/,
                 replaceExpr: /^.*\//,
                 flattenDirectories: true
@@ -66,11 +67,11 @@ module.exports = function sailsUtilsCold(sails) {
                 if(attribute.hasOwnProperty("model")) {
                     var attributeRef = attribute.model.toLowerCase();
                     if(sails.models[attributeRef].hasOwnProperty("cold") && sails.models[attributeRef].cold) {
-                        // Cloner l'attribute
+                        // Clone attribute
                         modelCold.attributes[attributeId + "Cold"] = _.clone(attribute);
-                        // Le faire pointer sur du cold
+                        // Make it aim to cold models
                         modelCold.attributes[attributeId + "Cold"].model = attribute.model + "Cold";
-                        // Trouver la référence réciproque du hot et l'appliquer au cold
+                        // Find the reciprocity and add via
                         var hotVia = _.findKey(sails.models[attributeRef].attributes, function(a) {return a.collection == model.identity || a.model == model.identity;});
                         if(hotVia && hotVia != 'undefined') {
                             modelCold.attributes[attributeId + "Cold"].via = hotVia + "Cold";
@@ -81,11 +82,11 @@ module.exports = function sailsUtilsCold(sails) {
                 else if(attribute.hasOwnProperty("collection")) {
                     var attributeRef = attribute.collection.toLowerCase();
                     if(sails.models[attributeRef].hasOwnProperty("cold") && sails.models[attributeRef].cold) {
-                        // Cloner l'attribute
+                        // Clone attribute
                         modelCold.attributes[attributeId + "Cold"] = _.clone(attribute);
-                        // Le faire pointer sur du cold
+                        // Make it aim to cold models
                         modelCold.attributes[attributeId + "Cold"].collection = attribute.collection + "Cold";
-                        // Trouver la référence réciproque du hot et l'appliquer au cold
+                        // Find the reciprocity and add via
                         var hotVia = _.findKey(sails.models[attributeRef].attributes, function(a) {return a.collection == model.globalId || a.model == model.globalId;});
                         if(hotVia && hotVia != 'undefined') {
                             modelCold.attributes[attributeId + "Cold"].via = hotVia + "Cold";
