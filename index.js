@@ -52,7 +52,9 @@ module.exports = function sailsUtilsCold(sails) {
                 sails.hooks.controllers.explicitActions[modelCold.identity][actionId] = true;
                 
             // Tell hot model to create instance of cold model when updated
-            sails.models[model.identity].beforeUpdate = self.coldUpdateHotModel(modelCold, model);
+            sails.models[model.identity].beforeUpdate = self.coldUpdateHotModel(modelCold, model, "beforeUpdate");
+            // Do the same for afterCreate
+            sails.models[model.identity].afterCreate = self.coldUpdateHotModel(modelCold, model, "afterCreate");
         },
         coldifyModel: function(modelCold, model) {
             var self = this;
@@ -108,12 +110,12 @@ module.exports = function sailsUtilsCold(sails) {
             
             return modelCold;
         },
-        coldUpdateHotModel: function(modelCold, model) {
-            // Save and replace existing beforeUpdate function on hot model
-            var beforeUpdate = sails.models[model.identity].hasOwnProperty("beforeUpdate")
-                && typeof sails.models[model.identity].beforeUpdate == "function"
-                && sails.models[model.identity].beforeUpdate ?
-                    sails.models[model.identity].beforeUpdate
+        coldUpdateHotModel: function(modelCold, model, lifecycleCallback) {
+            // Save and replace existing lifecycleCallback function on hot model
+            var callback = sails.models[model.identity].hasOwnProperty(lifecycleCallback)
+                && typeof sails.models[model.identity][lifecycleCallback] == "function"
+                && sails.models[model.identity][lifecycleCallback] ?
+                    sails.models[model.identity][lifecycleCallback]
                     : function(values, cb) {return cb();};
                     
             // Create a beforeUpdate function that creates a new cold content every time a hot model is updated. It's ran asynchronously, as you can see return beforeUpdate is ran at the end
@@ -170,7 +172,7 @@ module.exports = function sailsUtilsCold(sails) {
                         sails.log.error(e);
                     });
                 });
-                return beforeUpdate(values, cb);
+                return callback(values, cb);
             };
             return createAndUpdateFunction;
         }
