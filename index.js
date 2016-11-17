@@ -57,7 +57,12 @@ module.exports = function sailsUtilsCold(sails) {
         coldifyModel: function(modelCold, model) {
             var self = this;
             
-            // Delete references via
+            // Disable all callbacks from lifecycle, by security
+            var lifecycleCallbacks = ["beforeValidate", "afterValidate", "beforeCreate", "afterCreate", "beforeUpdate", "afterUpdate", "beforeDestroy", "afterDestroy"];
+            _.forEach(lifecycleCallbacks, function(lifecycleCallback) {
+                modelCold[lifecycleCallback] = function(i, cb) {return cb();};
+            });
+            
             _.forEach(modelCold.attributes, function(attribute, attributeId) {
                 // Disable via
                 if(attribute.hasOwnProperty("via")) {
