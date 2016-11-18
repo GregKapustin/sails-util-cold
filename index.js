@@ -52,7 +52,7 @@ module.exports = function sailsUtilsCold(sails) {
                 sails.hooks.controllers.explicitActions[modelCold.identity][actionId] = true;
                 
             // Tell hot model to create instance of cold model when updated
-            sails.models[model.identity].beforeUpdate = self.coldUpdateHotModel(modelCold, model, "beforeUpdate");
+            sails.models[model.identity].afterUpdate = self.coldUpdateHotModel(modelCold, model, "afterUpdate");
             // Do the same for afterCreate
             sails.models[model.identity].afterCreate = self.coldUpdateHotModel(modelCold, model, "afterCreate");
         },
@@ -125,20 +125,19 @@ module.exports = function sailsUtilsCold(sails) {
                 _.forEach(sails.models[model.identity].associations, function(association) {
                     search.populate(association.alias);
                 });
-                search.exec(function(err, contentHot) {
+                return search.exec(function(err, contentHot) {
+                    var contentCold = _.clone(contentHot);
                     // Disable ID, createdAt, updatedAt
-                    contentHot.id = null;
-                    contentHot.createdAt = null;
-                    contentHot.updatedAt = null;
-                    // Add coldReference
-                    contentHot.coldReference = values.id;
+                    contentCold.id = null;
+                    contentCold.createdAt = null;
+                    contentCold.updatedAt = null;
                     // Fill cold references with hottest cold models
                     var coldSearches = [];
                     var hotContents = {};
                     _.forEach(sails.models[model.identity].associations, function(association) {
                         if(modelCold.attributes.hasOwnProperty(association.alias + "Cold")) {
                             // Find all cold contents from hot contents referenced through this association
-                            hotContents[association[association.type]] = {alias: association.alias + "Cold", model: association[association.type] + "cold", type: association.type, contents: contentHot[association.alias].hasOwnProperty("id") ? [contentHot[association.alias].id] : _.map(contentHot[association.alias], "id")};
+                            hotContents[association[association.type]] = {alias: association.alias + "Cold", model: association[association.type] + "cold", type: association.type, contents: contentCold[association.alias] && contentCold[association.alias].hasOwnProperty("id") ? [contentHot[association.alias].id] : _.map(contentCold[association.alias], "id")};
                         }
                     });
                     // Finally do a search for each content
@@ -154,25 +153,27 @@ module.exports = function sailsUtilsCold(sails) {
                         var i = 0;
                         _.forEach(hotContents, function(associationType) {
                             if(associationType.type == "collection") {
-                                if(!contentHot[associationType.alias])
-                                    contentHot[associationType.alias] = [];
+                                if(!contentCold[associationType.alias])
+                                    contentCold[associationType.alias] = [];
                                 _.forEach(associationType.contents, function(contentId) {
-                                    contentHot[associationType.alias].push(res[i][0]);
+                                    contentCold[associationType.alias].push(res[i][0]);
                                     i++;
                                 });
                             } else if(associationType.type == "model") {
-                                contentHot[associationType.alias] = res[i][0];
+                                contentCold[associationType.alias] = res[i][0];
                                 i++;
                             }
                         });
                         // Finally create cold content
-                        sails.models[modelCold.identity].create(contentHot).exec(function(err, contentColdCreatedFromContentHot) {
+                        sails.models[modelCold.identity].create(contentCold).exec(function(err, contentColdCreatedFromContentHot) {
                         });
                     }).catch(function(e) {
                         sails.log.error(e);
                     });
+                    // Add coldReference
+                    contentCold.coldReference = contentHot.id;
+                    return callback(values, cb);
                 });
-                return callback(values, cb);
             };
             return createAndUpdateFunction;
         }
