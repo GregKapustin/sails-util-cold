@@ -153,16 +153,18 @@ module.exports = function sailsUtilsCold(sails) {
                         // Put cold contents in cold fields
                         var i = 0;
                         _.forEach(hotContents, function(associationType) {
-                            if(associationType.type == "collection") {
-                                if(!contentCold[associationType.alias])
-                                    contentCold[associationType.alias] = [];
-                                _.forEach(associationType.contents, function(contentId) {
-                                    contentCold[associationType.alias].push(res[i][0]);
+                            if(res[i] && res[i][0]) {
+                                if(associationType.type == "collection") {
+                                    if(!contentCold[associationType.alias])
+                                        contentCold[associationType.alias] = [];
+                                    _.forEach(associationType.contents, function(contentId) {
+                                        contentCold[associationType.alias].push(res[i][0]);
+                                        i++;
+                                    });
+                                } else if(associationType.type == "model") {
+                                    contentCold[associationType.alias] = res[i][0];
                                     i++;
-                                });
-                            } else if(associationType.type == "model") {
-                                contentCold[associationType.alias] = res[i][0];
-                                i++;
+                                }
                             }
                         });
                         // Finally create cold content
