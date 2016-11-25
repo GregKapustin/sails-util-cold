@@ -43,11 +43,12 @@ module.exports = function sailsUtilsCold(sails) {
             
             // Register controller
             sails.controllers[modelCold.identity] = {identity: modelCold.identity, globalId: modelCold.globalId, sails: sails};
-            sails.hooks.controllers.middleware[modelCold.identity] = {identity: modelCold.identity, globalId: modelCold.globalId, sails: sails};
+            //sails.hooks.controllers.middleware[modelCold.identity] = {identity: modelCold.identity, globalId: modelCold.globalId, sails: sails};
+            
             var actionId = "sails";
             var action = _.clone(sails);
                 action._middlewareType = 'ACTION: ' + modelCold.identity + '/' + actionId;
-                sails.hooks.controllers.middleware[modelCold.identity][actionId] = action;
+                //sails.hooks.controllers.middleware[modelCold.identity][actionId] = action;
                 sails.hooks.controllers.explicitActions[modelCold.identity] = sails.hooks.controllers.explicitActions[modelCold.identity] || {};
                 sails.hooks.controllers.explicitActions[modelCold.identity][actionId] = true;
                 
@@ -88,7 +89,7 @@ module.exports = function sailsUtilsCold(sails) {
                 // Collection
                 else if(attribute.hasOwnProperty("collection")) {
                     var attributeRef = attribute.collection.toLowerCase();
-                    if(sails.models[attributeRef].hasOwnProperty("cold") && sails.models[attributeRef].cold) {
+                    if(sails.models[attributeRef] && sails.models[attributeRef].hasOwnProperty("cold") && sails.models[attributeRef].cold) {
                         // Clone attribute
                         modelCold.attributes[attributeId + "Cold"] = _.clone(attribute);
                         // Make it aim to cold models
