@@ -1,6 +1,6 @@
 {
   "name": "sails-util-cold",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Create a cold copy of models, for data consistency. Quite like event sourcing.",
   "main": "index.js",
   "scripts": {
