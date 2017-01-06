@@ -74,7 +74,7 @@ module.exports = function sailsUtilsCold(sails) {
                 // Model
                 if(attribute.hasOwnProperty("model")) {
                     var attributeRef = attribute.model.toLowerCase();
-                    if(sails.models[attributeRef].hasOwnProperty("cold") && sails.models[attributeRef].cold) {
+                    if(sails.models[attributeRef] && sails.models[attributeRef].hasOwnProperty("cold") && sails.models[attributeRef].cold) {
                         // Clone attribute
                         modelCold.attributes[attributeId + "Cold"] = _.clone(attribute);
                         // Make it aim to cold models
